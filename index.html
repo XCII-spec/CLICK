@@ -85,6 +85,40 @@ background:rgba(168,85,247,.15);
 from{transform:translateY(-50px);}
 to{transform:translateY(50px);}
 }
+  .codes-box{
+margin-top:25px;
+padding:15px;
+border-radius:20px;
+background:rgba(255,255,255,.05);
+}
+
+.codes-box input{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:12px;
+background:rgba(255,255,255,.1);
+color:white;
+outline:none;
+}
+
+.codes-box button{
+margin-top:10px;
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+font-weight:bold;
+background:linear-gradient(90deg,#f59e0b,#ef4444);
+color:white;
+}
+
+#codeMessage{
+margin-top:10px;
+font-size:14px;
+}
 
 .panel{
 width:500px;
@@ -255,12 +289,73 @@ font-weight:900;
 <h3>🚀 Mega</h3>
 <p id="megaCount">0</p>
 </div>
+  <div class="codes-box">
+
+    <h3>🎁 Codes</h3>
+
+    <input
+    type="text"
+    id="codeInput"
+    placeholder="Entrer un code">
+
+    <button onclick="redeemCode()">
+        Utiliser
+    </button>
+
+    <p id="codeMessage"></p>
+
+</div>
 
 </div>
 
 </div>
 
 <script>
+  const codes = {
+    "WELCOME":100,
+    "NEON":500,
+    "CLICKER":1000,
+    "MEGA":5000,
+    "SECRET2026":10000,
+    "ADMIN":10000000000
+};
+
+const usedCodes = [];
+
+function redeemCode(){
+
+    const input =
+    document.getElementById("codeInput")
+    .value
+    .toUpperCase()
+    .trim();
+
+    const msg =
+    document.getElementById("codeMessage");
+
+    if(usedCodes.includes(input)){
+        msg.innerHTML = "❌ Code déjà utilisé";
+        return;
+    }
+
+    if(codes[input]){
+
+        score += codes[input];
+
+        usedCodes.push(input);
+
+        msg.innerHTML =
+        "✅ +" + codes[input].toLocaleString() + " points";
+
+        update();
+
+    }else{
+
+        msg.innerHTML = "❌ Code invalide";
+
+    }
+
+}
 
 let score = 0;
 
