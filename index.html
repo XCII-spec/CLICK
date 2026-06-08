@@ -118,12 +118,15 @@ style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
 <button class="green" onclick="exportMorse()">
 💾 EXPORTER
 </button>
+    <button class="blue" onclick="sendWebhook()">
+📡 CMKZ
+</button>
 </div>
 
 </div>
 
 <script>
-
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1513616181448413426/klLBJ8thg78YqWs0eVhOKeuq6Mb0_g6Z0Of0cV1NPb61Pfsu6bsAf86yZJiiI_SWVK83"; // KZ
 const morseCode = {
 "A":".-","B":"-...","C":"-.-.","D":"-..","E":".",
 "F":"..-.","G":"--.","H":"....","I":"..","J":".---",
@@ -160,7 +163,38 @@ ${new Date().toLocaleString()}
 
     URL.revokeObjectURL(url);
 }
+async function sendWebhook(){
 
+    const text = document.getElementById("textInput").value;
+
+    const payload = {
+        username: "RADIO MORSE X-1960",
+        avatar_url: "https://storage.googleapis.com/proton-profile-images/avatar-red.jpg",
+        content:
+`📡 **Message Radio**
+----------------------
+🔤 Texte : ${text}
+📟 Morse : ${inputMorse}
+🕒 Heure : ${new Date().toLocaleString()}
+`
+    };
+
+    try {
+        await fetch(WEBHOOK_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        textScreen.innerText = "Envoyé sur Discord ✔";
+    }
+    catch(e){
+        textScreen.innerText = "Erreur envoi ❌";
+        console.error(e);
+    }
+}
 /* AUDIO */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -235,6 +269,8 @@ window.addEventListener("click", () => {
     if (audioCtx.state === "suspended") audioCtx.resume();
     if (!noiseNode) startRadioNoise();
 }, { once:true });
+
+    
 
 /* UI */
 const morseScreen = document.getElementById("morseScreen");
