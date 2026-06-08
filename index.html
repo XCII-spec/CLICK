@@ -89,129 +89,85 @@ button:active{
 
 <div class="radio">
 
-    <h2>📻 RADIO MORSE X-1960</h2>
+<h2>📻 RADIO MORSE X-1960</h2>
 
-    <div class="led" id="led"></div>
+<div class="led" id="led"></div>
 
-    <div class="screen" id="morseScreen">---</div>
+<div class="screen" id="morseScreen">---</div>
 
-    <div class="screen input" id="textScreen">Texte : ...</div>
+<div class="screen input" id="textScreen">Texte : ...</div>
 
-    <input id="textInput" placeholder="Tape ton message ici"
-        style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
+<input id="textInput" placeholder="Tape ton message ici"
+style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
 
-    <div class="buttons">
+<div class="buttons">
 
-        <button onclick="dot()">● POINT</button>
-        <button onclick="dash()">▬ TIRET</button>
+<button onclick="dot()">● POINT</button>
+<button onclick="dash()">▬ TIRET</button>
 
-        <button class="orange" onclick="spaceLetter()">LETTRE</button>
-        <button class="orange" onclick="spaceWord()">MOT</button>
+<button class="orange" onclick="spaceLetter()">LETTRE</button>
+<button class="orange" onclick="spaceWord()">MOT</button>
 
-        <button class="green" onclick="convertText()">📡 TEXTE → MORSE</button>
-        <button class="blue" onclick="play()">🔊 LIRE</button>
-        <button class="red" onclick="clearAll()">RESET</button>
+<button class="green" onclick="convertText()">📡 TEXTE → MORSE</button>
+<button class="blue" onclick="play()">🔊 LIRE</button>
+<button class="red" onclick="clearAll()">RESET</button>
 
-    </div>
+<button class="blue" onclick="playRadioVoice('Message reçu. Transmission en cours.')">
+📡 VOIX RADIO
+</button>
+
+</div>
 
 </div>
 
 <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+const morseCode = {
+"A":".-","B":"-...","C":"-.-.","D":"-..","E":".",
+"F":"..-.","G":"--.","H":"....","I":"..","J":".---",
+"K":"-.-","L":".-..","M":"--","N":"-.","O":"---",
+"P":".--.","Q":"--.-","R":".-.","S":"...","T":"-",
+"U":"..-","V":"...-","W":".--","X":"-..-","Y":"-.--","Z":"--..",
+" ":"/"
+};
+
+let inputMorse = "";
+
+/* AUDIO */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+/* 🔊 GRÉSILLEMENT RADIO */
 let noiseNode, gainNode;
 
 function startRadioNoise(){
     const bufferSize = 2 * audioCtx.sampleRate;
-    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
 
     for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * 0.3; // bruit blanc
+        data[i] = (Math.random() * 2 - 1) * 0.25;
     }
 
     noiseNode = audioCtx.createBufferSource();
-    noiseNode.buffer = noiseBuffer;
+    noiseNode.buffer = buffer;
     noiseNode.loop = true;
 
     gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0.03; // volume faible (fond radio)
+    gainNode.gain.value = 0.03;
 
     noiseNode.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
     noiseNode.start();
 }
-    window.addEventListener("click", () => {
-    if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-    }
-    if (!noiseNode) {
-        startRadioNoise();
-    }
-}, { once: true });
-    function toggleNoise(){
-    if(noiseNode){
-        noiseNode.stop();
-        noiseNode = null;
-    } else {
-        startRadioNoise();
-    }
+
+/* 🔘 CLIC BOUTON */
+function buttonBeep(){
+    beep(1200, 40, 0.05);
 }
-    function playRadioVoice(text){
-    const utterance = new SpeechSynthesisUtterance(text);
 
-    // voix plus robot / distante
-    utterance.lang = "fr-FR";
-    utterance.rate = 0.9;
-    utterance.pitch = 0.4;
-    utterance.volume = 1;
-
-    const synth = window.speechSynthesis;
-
-    synth.cancel();
-    synth.speak(utterance);
-
-    // effet radio via filtre audio
-    const source = audioCtx.createMediaStreamDestination();
-}
-    function playRadioVoice(text){
-    const utterance = new SpeechSynthesisUtterance(text);
-
-    utterance.lang = "fr-FR";
-    utterance.rate = 0.85;
-    utterance.pitch = 0.3;
-    utterance.volume = 1;
-
-    const synth = window.speechSynthesis;
-
-    synth.cancel();
-    synth.speak(utterance);
-
-    // petit effet ambiance radio (simulation)
-    const noise = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
-
-    noise.type = "triangle";
-    noise.frequency.value = 120;
-
-    filter.type = "bandpass";
-    filter.frequency.value = 800;
-    filter.Q.value = 8;
-
-    gain.gain.value = 0.02;
-
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    noise.start();
-    setTimeout(() => noise.stop(), 250);
-}
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    ffunction beep(freq, duration, volume = 0.08){
+/* 🔊 BEEP GÉNÉRAL */
+function beep(freq, duration, volume = 0.08){
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
@@ -225,17 +181,34 @@ function startRadioNoise(){
     setTimeout(()=>osc.stop(), duration);
 }
 
-const morseCode = {
-"A":".-","B":"-...","C":"-.-.","D":"-..","E":".",
-"F":"..-.","G":"--.","H":"....","I":"..","J":".---",
-"K":"-.-","L":".-..","M":"--","N":"-.","O":"---",
-"P":".--.","Q":"--.-","R":".-.","S":"...","T":"-",
-"U":"..-","V":"...-","W":".--","X":"-..-","Y":"-.--","Z":"--..",
-" ":"/"
-};
+/* 🎛 SONS MORSE */
+function soundDot(){ beep(900, 60); }
+function soundDash(){ beep(600, 220); }
+function soundLetter(){ beep(300, 80); }
+function soundWord(){ beep(200, 180); }
 
-let inputMorse = "";
+/* 📡 VOIX RADIO */
+function playRadioVoice(text){
 
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "fr-FR";
+    utterance.rate = 0.85;
+    utterance.pitch = 0.3;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+
+    // petit effet radio
+    beep(120, 200, 0.02);
+}
+
+/* INIT NOISE */
+window.addEventListener("click", () => {
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    if (!noiseNode) startRadioNoise();
+}, { once:true });
+
+/* UI */
 const morseScreen = document.getElementById("morseScreen");
 const textScreen = document.getElementById("textScreen");
 const led = document.getElementById("led");
@@ -244,42 +217,7 @@ function update(){
     morseScreen.innerText = inputMorse;
 }
 
-/* 🔊 SON CLIC BOUTON */
-function clickSound(){
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.frequency.value = 1200; // clic radio
-    gain.gain.value = 0.05;     // volume faible
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    setTimeout(()=>osc.stop(), 40);
-}
-
-document.querySelectorAll("button").forEach(btn=>{
-    btn.addEventListener("click", buttonBeep);
-});
-    function soundDot(){
-    beep(900, 60); // aigu court
-}
-
-function soundDash(){
-    beep(600, 220); // plus grave + long
-}
-
-function soundLetter(){
-    beep(300, 80); // grave court
-}
-
-function soundWord(){
-    beep(200, 180); // grave + plus long
-}
-
-/* BOUTONS MORSE */
+/* BOUTONS */
 function dot(){
     inputMorse += ".";
     update();
@@ -304,12 +242,10 @@ function spaceWord(){
     soundWord();
 }
 
-/* TEXTE -> MORSE */
+/* TEXTE → MORSE */
 function convertText(){
 
-    let text =
-    document.getElementById("textInput").value.toUpperCase();
-
+    let text = document.getElementById("textInput").value.toUpperCase();
     let result = "";
 
     for(let c of text){
@@ -320,40 +256,22 @@ function convertText(){
 
     inputMorse = result;
     update();
-
     textScreen.innerText = "Converti ✔";
 }
 
-/* LECTURE SON MORSE */
-function beep(ctx,duration){
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.frequency.value = 600;
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    setTimeout(()=>osc.stop(),duration);
-}
-
+/* LECTURE MORSE */
 async function play(){
-
-    const ctx =
-    new (window.AudioContext || window.webkitAudioContext)();
 
     for(let s of inputMorse){
 
         led.classList.add("on");
 
         if(s === "."){
-            beep(ctx,100);
+            soundDot();
             await sleep(150);
         }
         else if(s === "-"){
-            beep(ctx,300);
+            soundDash();
             await sleep(350);
         }
         else if(s === " "){
@@ -379,6 +297,11 @@ function clearAll(){
 function sleep(ms){
     return new Promise(r=>setTimeout(r,ms));
 }
+
+/* AUTO CLICK SOUND */
+document.querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click", buttonBeep);
+});
 
 </script>
 
