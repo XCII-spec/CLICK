@@ -13,7 +13,6 @@ body{
     text-align:center;
 }
 
-/* RADIO */
 .radio{
     width:90%;
     max-width:900px;
@@ -25,7 +24,6 @@ body{
     box-shadow:0 0 40px #000 inset;
 }
 
-/* ÉCRAN */
 .screen{
     background:#000;
     border:4px solid #333;
@@ -37,14 +35,12 @@ body{
     margin-bottom:15px;
 }
 
-/* MORSE INPUT */
 .input{
     font-size:18px;
     color:#ffcc00;
     min-height:50px;
 }
 
-/* LED */
 .led{
     width:15px;
     height:15px;
@@ -58,7 +54,6 @@ body{
     box-shadow:0 0 15px #00ff66;
 }
 
-/* BOUTONS */
 .buttons{
     display:flex;
     flex-wrap:wrap;
@@ -142,6 +137,27 @@ function update(){
     morseScreen.innerText = inputMorse;
 }
 
+/* 🔊 SON CLIC BOUTON */
+function clickSound(){
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.frequency.value = 1200; // clic radio
+    gain.gain.value = 0.05;     // volume faible
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    setTimeout(()=>osc.stop(), 40);
+}
+
+/* AUTO SON SUR TOUS LES BOUTONS */
+document.querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click", clickSound);
+});
+
 /* BOUTONS MORSE */
 function dot(){
     inputMorse += ".";
@@ -183,7 +199,7 @@ function convertText(){
     textScreen.innerText = "Converti ✔";
 }
 
-/* LECTURE SON */
+/* LECTURE SON MORSE */
 function beep(ctx,duration){
 
     const osc = ctx.createOscillator();
@@ -195,7 +211,6 @@ function beep(ctx,duration){
     gain.connect(ctx.destination);
 
     osc.start();
-
     setTimeout(()=>osc.stop(),duration);
 }
 
