@@ -2,253 +2,242 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Morse Radio Pro</title>
+<title>RADIO MORSE X-1960</title>
 
 <style>
 body{
-    background:#111;
-    color:#fff;
-    font-family:Arial,sans-serif;
+    margin:0;
+    background:linear-gradient(#2b2b2b,#111);
+    font-family:monospace;
+    color:#ddd;
     text-align:center;
-    padding:30px;
 }
 
-h1{
-    color:#00ff88;
-}
-
-#display{
-    background:#000;
-    color:#00ff00;
-    min-height:80px;
-    padding:15px;
-    margin:20px auto;
+/* RADIO */
+.radio{
     width:90%;
-    border:2px solid #00ff88;
-    border-radius:10px;
-    font-size:22px;
-    word-wrap:break-word;
+    max-width:900px;
+    margin:40px auto;
+    padding:25px;
+    background:linear-gradient(145deg,#8a8a8a,#5a5a5a);
+    border:10px solid #2b2b2b;
+    border-radius:25px;
+    box-shadow:0 0 40px #000 inset;
 }
 
-input{
-    width:80%;
-    max-width:700px;
-    padding:15px;
-    font-size:18px;
-    border:none;
-    border-radius:10px;
+/* ÉCRAN */
+.screen{
+    background:#000;
+    border:4px solid #333;
+    padding:20px;
+    min-height:90px;
+    font-size:22px;
+    color:#00ff66;
+    text-shadow:0 0 10px #00ff66;
     margin-bottom:15px;
 }
 
+/* MORSE INPUT */
+.input{
+    font-size:18px;
+    color:#ffcc00;
+    min-height:50px;
+}
+
+/* LED */
+.led{
+    width:15px;
+    height:15px;
+    background:#222;
+    border-radius:50%;
+    margin:10px auto;
+    box-shadow:0 0 5px #000;
+}
+.led.on{
+    background:#00ff66;
+    box-shadow:0 0 15px #00ff66;
+}
+
+/* BOUTONS */
+.buttons{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-top:15px;
+}
+
 button{
-    padding:12px 20px;
-    margin:5px;
+    padding:12px 16px;
     border:none;
     border-radius:8px;
     cursor:pointer;
-    font-size:16px;
-}
-
-.convert{
-    background:#00aa66;
+    font-weight:bold;
+    background:#6e6e6e;
     color:white;
+    box-shadow:0 3px 0 #222 inset;
 }
 
-.clear{
-    background:#cc3333;
-    color:white;
+button:active{
+    transform:translateY(2px);
 }
 
-.play{
-    background:#0077ff;
-    color:white;
-}
+.blue{background:#3a6ea5;}
+.red{background:#a53a3a;}
+.green{background:#2f7a3a;}
+.orange{background:#a57a2f;}
 
-#status{
-    margin-top:15px;
-    color:#aaa;
-}
 </style>
 </head>
+
 <body>
 
-<h1>📻 Convertisseur Morse</h1>
+<div class="radio">
 
-<input
-type="text"
-id="customText"
-placeholder="Tape ton message ici..."
->
+    <h2>📻 RADIO MORSE X-1960</h2>
 
-<br>
+    <div class="led" id="led"></div>
 
-<button class="convert" onclick="convertCustomText()">
-📡 Convertir en Morse
-</button>
+    <div class="screen" id="morseScreen">---</div>
 
-<button class="play" onclick="playMorse()">
-🔊 Lire le Morse
-</button>
+    <div class="screen input" id="textScreen">Texte : ...</div>
 
-<button class="clear" onclick="clearAll()">
-🗑 Effacer
-</button>
+    <input id="textInput" placeholder="Tape ton message ici"
+        style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
 
-<div id="display"></div>
+    <div class="buttons">
 
-<div id="status">
-Prêt
+        <button onclick="dot()">● POINT</button>
+        <button onclick="dash()">▬ TIRET</button>
+
+        <button class="orange" onclick="spaceLetter()">LETTRE</button>
+        <button class="orange" onclick="spaceWord()">MOT</button>
+
+        <button class="green" onclick="convertText()">📡 TEXTE → MORSE</button>
+        <button class="blue" onclick="play()">🔊 LIRE</button>
+        <button class="red" onclick="clearAll()">RESET</button>
+
+    </div>
+
 </div>
 
 <script>
 
 const morseCode = {
-'A':'.-',
-'B':'-...',
-'C':'-.-.',
-'D':'-..',
-'E':'.',
-'F':'..-.',
-'G':'--.',
-'H':'....',
-'I':'..',
-'J':'.---',
-'K':'-.-',
-'L':'.-..',
-'M':'--',
-'N':'-.',
-'O':'---',
-'P':'.--.',
-'Q':'--.-',
-'R':'.-.',
-'S':'...',
-'T':'-',
-'U':'..-',
-'V':'...-',
-'W':'.--',
-'X':'-..-',
-'Y':'-.--',
-'Z':'--..',
-'0':'-----',
-'1':'.----',
-'2':'..---',
-'3':'...--',
-'4':'....-',
-'5':'.....',
-'6':'-....',
-'7':'--...',
-'8':'---..',
-'9':'----.'
+"A":".-","B":"-...","C":"-.-.","D":"-..","E":".",
+"F":"..-.","G":"--.","H":"....","I":"..","J":".---",
+"K":"-.-","L":".-..","M":"--","N":"-.","O":"---",
+"P":".--.","Q":"--.-","R":".-.","S":"...","T":"-",
+"U":"..-","V":"...-","W":".--","X":"-..-","Y":"-.--","Z":"--..",
+" ":"/"
 };
 
-let currentMorse = "";
+let inputMorse = "";
 
-function convertCustomText(){
+const morseScreen = document.getElementById("morseScreen");
+const textScreen = document.getElementById("textScreen");
+const led = document.getElementById("led");
 
-    const text =
-    document.getElementById("customText")
-    .value
-    .toUpperCase();
+function update(){
+    morseScreen.innerText = inputMorse;
+}
+
+/* BOUTONS MORSE */
+function dot(){
+    inputMorse += ".";
+    update();
+}
+
+function dash(){
+    inputMorse += "-";
+    update();
+}
+
+function spaceLetter(){
+    inputMorse += " ";
+    update();
+}
+
+function spaceWord(){
+    inputMorse += " / ";
+    update();
+}
+
+/* TEXTE -> MORSE */
+function convertText(){
+
+    let text =
+    document.getElementById("textInput").value.toUpperCase();
 
     let result = "";
 
-    for(let char of text){
-
-        if(char === " "){
-            result += "/ ";
-            continue;
-        }
-
-        if(morseCode[char]){
-            result += morseCode[char] + " ";
+    for(let c of text){
+        if(morseCode[c]){
+            result += morseCode[c] + " ";
         }
     }
 
-    currentMorse = result;
+    inputMorse = result;
+    update();
 
-    document.getElementById("display").innerText =
-    result;
-
-    document.getElementById("status").innerText =
-    "Conversion terminée";
+    textScreen.innerText = "Converti ✔";
 }
 
-function clearAll(){
+/* LECTURE SON */
+function beep(ctx,duration){
 
-    currentMorse = "";
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-    document.getElementById("customText").value = "";
+    osc.frequency.value = 600;
 
-    document.getElementById("display").innerText = "";
+    osc.connect(gain);
+    gain.connect(ctx.destination);
 
-    document.getElementById("status").innerText =
-    "Effacé";
+    osc.start();
+
+    setTimeout(()=>osc.stop(),duration);
 }
 
-async function playMorse(){
+async function play(){
 
-    if(!currentMorse){
-        alert("Convertis un texte d'abord");
-        return;
-    }
-
-    const audioContext =
+    const ctx =
     new (window.AudioContext || window.webkitAudioContext)();
 
-    document.getElementById("status").innerText =
-    "Lecture en cours...";
+    for(let s of inputMorse){
 
-    for(let symbol of currentMorse){
+        led.classList.add("on");
 
-        if(symbol === "."){
-            beep(audioContext,100);
+        if(s === "."){
+            beep(ctx,100);
             await sleep(150);
         }
-
-        else if(symbol === "-"){
-            beep(audioContext,300);
+        else if(s === "-"){
+            beep(ctx,300);
             await sleep(350);
         }
-
-        else if(symbol === " "){
+        else if(s === " "){
             await sleep(150);
         }
-
-        else if(symbol === "/"){
-            await sleep(700);
+        else if(s === "/"){
+            await sleep(600);
         }
+
+        led.classList.remove("on");
     }
-
-    document.getElementById("status").innerText =
-    "Lecture terminée";
 }
 
-function beep(audioContext,duration){
-
-    const oscillator =
-    audioContext.createOscillator();
-
-    const gainNode =
-    audioContext.createGain();
-
-    oscillator.frequency.value = 700;
-
-    oscillator.connect(gainNode);
-
-    gainNode.connect(audioContext.destination);
-
-    oscillator.start();
-
-    setTimeout(()=>{
-        oscillator.stop();
-    },duration);
+/* RESET */
+function clearAll(){
+    inputMorse = "";
+    update();
+    textScreen.innerText = "Texte : ...";
+    document.getElementById("textInput").value = "";
 }
 
+/* UTIL */
 function sleep(ms){
-    return new Promise(resolve =>
-        setTimeout(resolve,ms)
-    );
+    return new Promise(r=>setTimeout(r,ms));
 }
 
 </script>
