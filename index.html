@@ -115,7 +115,9 @@ style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
 <button class="blue" onclick="playRadioVoice('Message reçu. Transmission en cours.')">
 📡 VOIX RADIO
 </button>
-
+<button class="green" onclick="exportMorse()">
+💾 EXPORTER
+</button>
 </div>
 
 </div>
@@ -132,6 +134,32 @@ const morseCode = {
 };
 
 let inputMorse = "";
+    function exportMorse(){
+
+    const content =
+`RADIO MORSE X-1960
+===================
+
+MORSE :
+${inputMorse}
+
+TEXTE :
+${document.getElementById("textInput").value}
+
+DATE :
+${new Date().toLocaleString()}
+`;
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "radio_morse.txt";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
 
 /* AUDIO */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
