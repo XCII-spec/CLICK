@@ -124,6 +124,9 @@ style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
     <button class="orange" onclick="getSignalPosition()">
 📡 POSITION DU SIGNAL
 </button>
+    <button class="red" onclick="sendSOS()">
+🚨 SOS
+</button>
 </div>
 <div class="screen" id="positionScreen">
 Position : inconnue
@@ -230,6 +233,76 @@ async function sendWebhook(){
     catch(e){
         textScreen.innerText = "Erreur envoi ❌";
         console.error(e);
+    }
+}
+    async function sendSOS(){
+
+    inputMorse = "... --- ...";
+    update();
+        for(let i=0;i<3;i++){
+    beep(900,300,0.15);
+    await sleep(350);
+    beep(500,300,0.15);
+    await sleep(350);
+}
+
+    playRadioVoice("Alerte SOS. Transmission d'urgence.");
+
+    let latitude = "Inconnue";
+    let longitude = "Inconnue";
+
+    try{
+        const pos = await new Promise((resolve,reject)=>{
+            navigator.geolocation.getCurrentPosition(resolve,reject);
+        });
+
+        latitude = pos.coords.latitude.toFixed(6);
+        longitude = pos.coords.longitude.toFixed(6);
+    }
+    catch(e){}
+
+    const pseudo =
+        document.getElementById("textInput").value ||
+        "Utilisateur inconnu";
+
+    const payload = {
+        username: "RADIO MORSE X-1960",
+        content:
+`🚨 ALERTE SOS 🚨
+
+${pseudo} est en danger !
+
+📡 Morse :
+... --- ...
+
+📍 Latitude : ${latitude}
+📍 Longitude : ${longitude}
+
+🌍 Carte :
+https://maps.google.com/?q=${latitude},${longitude}
+
+🕒 Heure :
+${new Date().toLocaleString()}
+`
+    };
+
+    try{
+
+        await fetch(WEBHOOK_URL,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(payload)
+        });
+
+        textScreen.innerText =
+        "🚨 SOS envoyé avec succès";
+
+    }catch(err){
+
+        textScreen.innerText =
+        "❌ Erreur envoi SOS";
     }
 }
 /* AUDIO */
