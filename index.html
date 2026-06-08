@@ -121,8 +121,13 @@ style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
     <button class="blue" onclick="sendWebhook()">
 📡 CMKZ
 </button>
+    <button class="orange" onclick="getSignalPosition()">
+📡 POSITION DU SIGNAL
+</button>
 </div>
-
+<div class="screen" id="positionScreen">
+Position : inconnue
+</div>
 </div>
 
 <script>
@@ -162,6 +167,38 @@ ${new Date().toLocaleString()}
     a.click();
 
     URL.revokeObjectURL(url);
+}
+    function getSignalPosition(){
+
+    if(!navigator.geolocation){
+        document.getElementById("positionScreen").innerText =
+        "Géolocalisation non supportée";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position){
+
+            const lat = position.coords.latitude.toFixed(6);
+            const lon = position.coords.longitude.toFixed(6);
+
+            document.getElementById("positionScreen").innerText =
+            `📡 Signal détecté
+Latitude : ${lat}
+Longitude : ${lon}`;
+
+        },
+
+        function(error){
+
+            document.getElementById("positionScreen").innerText =
+            "❌ Position indisponible";
+
+        }
+
+    );
+
 }
 async function sendWebhook(){
 
