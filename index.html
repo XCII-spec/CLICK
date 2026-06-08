@@ -1,457 +1,350 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEON CLICKER X</title>
+    <meta charset="UTF-8">
+    <title>Clavier Morse & Export MP3</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            margin-top: 30px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 { color: #007acc; text-shadow: 0 0 10px rgba(0,122,204,0.5); }
+        
+        .controls {
+            background: #252526;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+        button {
+            padding: 12px 24px;
+            margin: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
 
-<style>
+        .btn-morse { background-color: #007acc; color: white; }
+        .btn-morse:hover { background-color: #005a9e; transform: translateY(-2px); }
+        .btn-morse:active { transform: translateY(0); }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Orbitron',sans-serif;
-}
-  .panel{
-width:min(95vw,500px);
-max-height:95vh;
-overflow-y:auto;
-padding:25px;
-border-radius:35px;
-background:rgba(255,255,255,.06);
-backdrop-filter:blur(25px);
-border:1px solid rgba(255,255,255,.15);
-box-shadow:
-0 0 40px rgba(59,130,246,.4),
-0 0 80px rgba(168,85,247,.2);
-text-align:center;
-}
+        .btn-action { background-color: #2da44e; color: white; }
+        .btn-action:hover { background-color: #2c974b; transform: translateY(-2px); }
+        .btn-action:disabled { background-color: #555; cursor: not-allowed; transform: none; }
 
-.click-btn{
-width:min(40vw,220px);
-height:min(40vw,220px);
-min-width:120px;
-min-height:120px;
-border:none;
-border-radius:50%;
-cursor:pointer;
-font-size:clamp(25px,5vw,40px);
-}
+        .btn-clear { background-color: #d73a49; color: white; }
+        .btn-clear:hover { background-color: #cb2431; }
 
-body{
-height:100vh;
-overflow:hidden;
-background:
-radial-gradient(circle at top,#4f46e5 0%,#0f172a 30%,#020617 100%);
-display:flex;
-justify-content:center;
-align-items:center;
-color:white;
-}
+        select {
+            padding: 10px;
+            font-size: 16px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: inherit;
+        }
 
-.bg{
-position:fixed;
-width:100%;
-height:100%;
-overflow:hidden;
-z-index:-1;
-}
+        #display {
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+            min-height: 30px;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            letter-spacing: 2px;
+        }
 
-.bg span{
-position:absolute;
-width:300px;
-height:300px;
-border-radius:50%;
-background:rgba(59,130,246,.15);
-filter:blur(80px);
-animation:float 12s infinite alternate;
-}
-
-.bg span:nth-child(1){
-top:10%;
-left:10%;
-}
-
-.bg span:nth-child(2){
-bottom:10%;
-right:10%;
-background:rgba(168,85,247,.15);
-}
-
-@keyframes float{
-from{transform:translateY(-50px);}
-to{transform:translateY(50px);}
-}
-  .codes-box{
-margin-top:25px;
-padding:15px;
-border-radius:20px;
-background:rgba(255,255,255,.05);
-}
-
-.codes-box input{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:12px;
-background:rgba(255,255,255,.1);
-color:white;
-outline:none;
-}
-
-.codes-box button{
-margin-top:10px;
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-cursor:pointer;
-font-weight:bold;
-background:linear-gradient(90deg,#f59e0b,#ef4444);
-color:white;
-}
-
-#codeMessage{
-margin-top:10px;
-font-size:14px;
-}
-
-.panel{
-width:500px;
-padding:35px;
-border-radius:35px;
-background:rgba(255,255,255,.06);
-backdrop-filter:blur(25px);
-border:1px solid rgba(255,255,255,.15);
-box-shadow:
-0 0 40px rgba(59,130,246,.4),
-0 0 80px rgba(168,85,247,.2);
-text-align:center;
-}
-
-.logo{
-font-size:42px;
-font-weight:900;
-letter-spacing:4px;
-margin-bottom:15px;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6,#ec4899);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.score{
-font-size:85px;
-font-weight:900;
-margin:20px 0;
-text-shadow:
-0 0 10px #38bdf8,
-0 0 20px #38bdf8,
-0 0 40px #38bdf8;
-}
-
-.cps{
-color:#94a3b8;
-margin-bottom:20px;
-}
-
-.click-btn{
-width:220px;
-height:220px;
-border:none;
-border-radius:50%;
-cursor:pointer;
-font-size:40px;
-font-weight:900;
-color:white;
-background:
-linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899);
-background-size:300% 300%;
-animation:gradient 5s infinite;
-box-shadow:
-0 0 30px #3b82f6,
-0 0 60px #8b5cf6,
-0 0 100px rgba(236,72,153,.5);
-transition:.15s;
-}
-
-.click-btn:hover{
-transform:scale(1.08);
-}
-
-.click-btn:active{
-transform:scale(.92);
-}
-
-@keyframes gradient{
-0%{background-position:0% 50%;}
-50%{background-position:100% 50%;}
-100%{background-position:0% 50%;}
-}
-
-.shop{
-margin-top:30px;
-display:flex;
-flex-direction:column;
-gap:15px;
-}
-
-.upgrade{
-padding:18px;
-border:none;
-border-radius:18px;
-cursor:pointer;
-font-size:16px;
-font-weight:700;
-color:white;
-background:linear-gradient(90deg,#10b981,#06b6d4);
-transition:.2s;
-}
-
-.upgrade:hover{
-transform:translateY(-4px);
-box-shadow:0 0 20px #06b6d4;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-margin-top:25px;
-}
-
-.card{
-padding:15px;
-border-radius:18px;
-background:rgba(255,255,255,.05);
-border:1px solid rgba(255,255,255,.08);
-}
-
-.card h3{
-font-size:14px;
-color:#94a3b8;
-margin-bottom:8px;
-}
-
-.card p{
-font-size:25px;
-font-weight:900;
-}
-
-</style>
+        .status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #888;
+            height: 20px;
+        }
+        
+        /* Animation visuelle */
+        .light {
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+            margin: 0 auto 10px auto;
+            transition: background 0.05s;
+            box-shadow: 0 0 5px #000;
+        }
+        .light.on {
+            background: #0f0;
+            box-shadow: 0 0 15px #0f0;
+        }
+    </style>
 </head>
 <body>
 
-<div class="bg">
-<span></span>
-<span></span>
-</div>
-
-<div class="panel">
-
-<div class="logo">
-⚡ NEON CLICKER X ⚡
-</div>
-
-<div id="score" class="score">0</div>
-
-<div class="cps">
-💸 Points automatiques : <span id="cps">0</span>/sec
-</div>
-
-<button class="click-btn" onclick="clickScore()">
-⚡
-</button>
-
-<div class="shop">
-
-<button class="upgrade" onclick="buyAuto()">
-🤖 AUTOCLICKER • <span id="cost">50</span>
-</button>
-
-<button class="upgrade" onclick="buyMega()">
-🚀 MEGA AUTOCLICKER • <span id="megacost">500</span>
-</button>
-
-</div>
-
-<div class="stats">
-
-<div class="card">
-<h3>🤖 AutoClickers</h3>
-<p id="autoCount">0</p>
-</div>
-
-<div class="card">
-<h3>🚀 Mega</h3>
-<p id="megaCount">0</p>
-</div>
-  <div class="codes-box">
-
-    <h3>🎁 Codes</h3>
-
-    <input
-    type="text"
-    id="codeInput"
-    placeholder="Entrer un code">
-
-    <button onclick="redeemCode()">
-        Utiliser
-    </button>
-
-    <p id="codeMessage"></p>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-  function formatNumber(num){
-
-    if(num >= 1e63) return (num/1e63).toFixed(1)+"Vg";
-    if(num >= 1e60) return (num/1e60).toFixed(1)+"Nv";
-    if(num >= 1e57) return (num/1e57).toFixed(1)+"Oc";
-    if(num >= 1e54) return (num/1e54).toFixed(1)+"Sp";
-    if(num >= 1e51) return (num/1e51).toFixed(1)+"Sx";
-    if(num >= 1e48) return (num/1e48).toFixed(1)+"Qi";
-    if(num >= 1e45) return (num/1e45).toFixed(1)+"Qa";
-    if(num >= 1e42) return (num/1e42).toFixed(1)+"T";
-    if(num >= 1e39) return (num/1e39).toFixed(1)+"D";
-    if(num >= 1e36) return (num/1e36).toFixed(1)+"U";
-    if(num >= 1e33) return (num/1e33).toFixed(1)+"Dc";
-    if(num >= 1e30) return (num/1e30).toFixed(1)+"No";
-    if(num >= 1e27) return (num/1e27).toFixed(1)+"Oc";
-    if(num >= 1e24) return (num/1e24).toFixed(1)+"Sp";
-    if(num >= 1e21) return (num/1e21).toFixed(1)+"Sx";
-    if(num >= 1e18) return (num/1e18).toFixed(1)+"Qi";
-    if(num >= 1e15) return (num/1e15).toFixed(1)+"Qa";
-    if(num >= 1e12) return (num/1e12).toFixed(1)+"T";
-    if(num >= 1e9) return (num/1e9).toFixed(1)+"B";
-    if(num >= 1e6) return (num/1e6).toFixed(1)+"M";
-    if(num >= 1e3) return (num/1e3).toFixed(1)+"K";
-
-    return Math.floor(num);
-}
-  const codes = {
-    "WELCOME":100,
-    "NEON":500,
-    "CLICKER":1000,
-    "MEGA":5000,
-    "SECRET2026":10000,
-    "ADMIN":10000000000,
-    "MEGAADMIN":1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-};
-
-const usedCodes = [];
-
-function redeemCode(){
-
-    const input =
-    document.getElementById("codeInput")
-    .value
-    .toUpperCase()
-    .trim();
-
-    const msg =
-    document.getElementById("codeMessage");
-
-    if(usedCodes.includes(input)){
-        msg.innerHTML = "❌ Code déjà utilisé";
-        return;
-    }
-
-    if(codes[input]){
-
-        score += codes[input];
-
-        usedCodes.push(input);
-
-        msg.innerHTML =
-        "✅ +" + codes[input].toLocaleString() + " points";
-
-        update();
-
-    }else{
-
-        msg.innerHTML = "❌ Code invalide";
-
-    }
-
-}
-
-let score = 0;
-
-let auto = 0;
-let mega = 0;
-
-let autoCost = 50;
-let megaCost = 500;
-
-document.getElementById("score").innerHTML =
-formatNumber(score);
-
-function clickScore(){
-
-score++;
-
-update();
-
-}
-
-function buyAuto(){
-
-if(score >= autoCost){
-
-score -= autoCost;
-
-auto++;
-
-autoCost = Math.floor(autoCost * 1.4);
-
-update();
-
-}
-
-}
-
-function buyMega(){
-
-if(score >= megaCost){
-
-score -= megaCost;
-
-mega++;
-
-megaCost = Math.floor(megaCost * 1.8);
-
-update();
-
-}
-
-}
-
-setInterval(()=>{
-
-score += auto;
-score += mega * 10;
-
-update();
-
-},1000);
-
-update();
-  document.getElementById("cost").innerHTML =
-formatNumber(autoCost);
-
-document.getElementById("megacost").innerHTML =
-formatNumber(megaCost);
-
-</script>
-
+    <h1>📻 Clavier Morse & Enregistreur</h1>
+
+    <div class="controls">
+        <div class="light" id="light"></div>
+        
+        <!-- Sélection de message -->
+        <div>
+            <select id="messageSelect" onchange="loadMessage()">
+                <option value="">-- Choisir un message --</option>
+                <option value="SOS">SOS (Urgence)</option>
+                <option value="SALUT">Salut les potes</option>
+                <option value="CA VA">Ça va ?</option>
+                <option value="TOP">Top niveau</option>
+                <option value="A PLUS">À plus tard</option>
+                <option value="RADIO ACTIVE">Radio Active</option>
+                <option value="HELP">Au secours</option>
+            </select>
+        </div>
+
+        <!-- Affichage du code -->
+        <div id="display"></div>
+        <div class="status" id="statusText">Prêt à transmettre</div>
+
+        <!-- Boutons Manuels -->
+        <div style="margin-top: 20px;">
+            <button class="btn-morse" id="dotBtn">. (Point)</button>
+            <button class="btn-morse" id="dashBtn">- (Tiret)</button>
+            <button class="btn-clear" onclick="clearDisplay()">Effacer</button>
+        </div>
+
+        <!-- Bouton Export -->
+        <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 20px;">
+            <button class="btn-action" id="exportBtn" onclick="exportToMP3()">💾 Exporter en MP3</button>
+        </div>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let recordedChunks = [];
+        let mediaRecorder;
+        let audioDestination;
+        let isRecording = false;
+        
+        // Dictionnaire Morse
+        const morseCode = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..',
+            '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+            '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+            ' ': '/'
+        };
+
+        // Inverse pour affichage texte si besoin (optionnel)
+        const displayEl = document.getElementById('display');
+        const statusEl = document.getElementById('statusText');
+        const lightEl = document.getElementById('light');
+        const exportBtn = document.getElementById('exportBtn');
+
+        let currentSequence = []; // Stocke les {type, duration} pour l'export
+
+        // Initialisation de l'enregistreur (Destination pour capturer le son)
+        function initRecorder() {
+            if (!audioDestination) {
+                audioDestination = audioContext.createMediaStreamDestination();
+                mediaRecorder = new MediaRecorder(audioDestination.stream, { mimeType: 'audio/webm' });
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) recordedChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'morse_signal.webm'; // Format webm (compatible partout, lisible comme mp3 par la plupart des lecteurs)
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        recordedChunks = [];
+                        statusEl.innerText = "Export terminé !";
+                        exportBtn.disabled = false;
+                    }, 100);
+                };
+            }
+        }
+
+        function playTone(duration, record = true) {
+            if (audioContext.state === 'suspended') audioContext.resume();
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.frequency.value = 700;
+            oscillator.type = 'sine';
+
+            // Connexion vers haut-parleur ET enregistreur
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            if (isRecording && audioDestination) {
+                gainNode.connect(audioDestination);
+            }
+
+            const now = audioContext.currentTime;
+            gainNode.gain.setValueAtTime(0.5, now);
+            gainNode.gain.setValueAtTime(0.5, now + duration);
+            gainNode.gain.setValueAtTime(0, now + duration + 0.05);
+
+            oscillator.start(now);
+            oscillator.stop(now + duration + 0.05);
+
+            // Animation visuelle
+            lightEl.classList.add('on');
+            setTimeout(() => lightEl.classList.remove('on'), duration * 1000);
+
+            // Enregistrer la séquence pour l'export
+            if (record) {
+                currentSequence.push({ type: 'tone', duration: duration });
+            }
+        }
+
+        function playSilence(duration, record = true) {
+            if (isRecording && record) {
+                currentSequence.push({ type: 'silence', duration: duration });
+            }
+            // Pas de son, juste un délai logique si on jouait en temps réel
+        }
+
+        // Gestion des boutons manuels
+        document.getElementById('dotBtn').addEventListener('click', () => {
+            playTone(0.1);
+            displayEl.innerText += ". ";
+            currentSequence.push({ type: 'tone', duration: 0.1 });
+            currentSequence.push({ type: 'silence', duration: 0.1 }); // Espace intra-caractère
+        });
+
+        document.getElementById('dashBtn').addEventListener('click', () => {
+            playTone(0.3);
+            displayEl.innerText += "- ";
+            currentSequence.push({ type: 'tone', duration: 0.3 });
+            currentSequence.push({ type: 'silence', duration: 0.1 });
+        });
+
+        function clearDisplay() {
+            displayEl.innerText = "";
+            currentSequence = [];
+            statusEl.innerText = "Mémoire effacée";
+        }
+
+        function loadMessage() {
+            const select = document.getElementById('messageSelect');
+            const text = select.value;
+            if (!text) return;
+
+            clearDisplay();
+            let morseString = "";
+            
+            // Conversion texte -> morse pour affichage
+            for (let char of text.toUpperCase()) {
+                if (morseCode[char]) {
+                    morseString += morseCode[char] + " ";
+                } else if (char === " ") {
+                    morseString += "/ ";
+                }
+            }
+            displayEl.innerText = morseString;
+            statusEl.innerText = `Message chargé : "${text}" (Prêt à jouer/exporter)`;
+            
+            // Préparer la séquence audio pour ce message
+            prepareSequence(text);
+        }
+
+        function prepareSequence(text) {
+            currentSequence = [];
+            const unit = 0.1; // Vitesse de base
+
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i].toUpperCase();
+                if (char === ' ') {
+                    currentSequence.push({ type: 'silence', duration: unit * 7 }); // Espace mot
+                    continue;
+                }
+
+                let code = morseCode[char];
+                if (!code) continue;
+
+                for (let j = 0; j < code.length; j++) {
+                    if (code[j] === '.') {
+                        currentSequence.push({ type: 'tone', duration: unit });
+                    } else if (code[j] === '-') {
+                        currentSequence.push({ type: 'tone', duration: unit * 3 });
+                    }
+                    
+                    // Espace entre signaux (1 unité)
+                    if (j < code.length - 1) {
+                        currentSequence.push({ type: 'silence', duration: unit });
+                    }
+                }
+                // Espace entre lettres (3 unités)
+                currentSequence.push({ type: 'silence', duration: unit * 2 }); // +1 déjà mis après le dernier signal
+            }
+        }
+
+        async function exportToMP3() {
+            if (currentSequence.length === 0) {
+                alert("Aucun message à exporter ! Tapez du morse ou choisissez un message.");
+                return;
+            }
+
+            initRecorder();
+            recordedChunks = [];
+            isRecording = true;
+            exportBtn.disabled = true;
+            statusEl.innerText = "Génération du fichier audio...";
+            exportBtn.innerText = "⏳ Génération...";
+
+            mediaRecorder.start();
+
+            // Jouer la séquence silencieusement (ou avec son) pour l'enregistrer
+            let currentTime = 0;
+            
+            // On utilise un délai réel pour laisser le MediaRecorder capturer le flux
+            // Note: Pour une exportation instantanée sans jouer, il faudrait générer un buffer audio complexe.
+            // Ici, on joue le son pour que l'utilisateur l'entende pendant la création du fichier.
+            
+            statusEl.innerText = "Lecture et enregistrement en cours...";
+
+            for (let item of currentSequence) {
+                if (item.type === 'tone') {
+                    playTone(item.duration, true);
+                    await new Promise(r => setTimeout(r, item.duration * 1000));
+                } else {
+                    await new Promise(r => setTimeout(r, item.duration * 1000));
+                }
+                // Petit délai de sécurité entre les éléments
+                await new Promise(r => setTimeout(r, 50)); 
+            }
+
+            // Arrêter l'enregistrement après un court délai pour capturer la fin du son
+            setTimeout(() => {
+                mediaRecorder.stop();
+                isRecording = false;
+                exportBtn.innerText = "💾 Exporter en MP3";
+            }, 500);
+        }
+    </script>
 </body>
-</html>
+</html>   
