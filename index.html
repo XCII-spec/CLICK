@@ -118,18 +118,111 @@ button:active{
 
 <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function buttonBeep(){
+
+let noiseNode, gainNode;
+
+function startRadioNoise(){
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * 0.3; // bruit blanc
+    }
+
+    noiseNode = audioCtx.createBufferSource();
+    noiseNode.buffer = noiseBuffer;
+    noiseNode.loop = true;
+
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.03; // volume faible (fond radio)
+
+    noiseNode.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    noiseNode.start();
+}
+    window.addEventListener("click", () => {
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+    }
+    if (!noiseNode) {
+        startRadioNoise();
+    }
+}, { once: true });
+    function toggleNoise(){
+    if(noiseNode){
+        noiseNode.stop();
+        noiseNode = null;
+    } else {
+        startRadioNoise();
+    }
+}
+    function playRadioVoice(text){
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // voix plus robot / distante
+    utterance.lang = "fr-FR";
+    utterance.rate = 0.9;
+    utterance.pitch = 0.4;
+    utterance.volume = 1;
+
+    const synth = window.speechSynthesis;
+
+    synth.cancel();
+    synth.speak(utterance);
+
+    // effet radio via filtre audio
+    const source = audioCtx.createMediaStreamDestination();
+}
+    function playRadioVoice(text){
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    utterance.lang = "fr-FR";
+    utterance.rate = 0.85;
+    utterance.pitch = 0.3;
+    utterance.volume = 1;
+
+    const synth = window.speechSynthesis;
+
+    synth.cancel();
+    synth.speak(utterance);
+
+    // petit effet ambiance radio (simulation)
+    const noise = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    noise.type = "triangle";
+    noise.frequency.value = 120;
+
+    filter.type = "bandpass";
+    filter.frequency.value = 800;
+    filter.Q.value = 8;
+
+    gain.gain.value = 0.02;
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    noise.start();
+    setTimeout(() => noise.stop(), 250);
+}
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    ffunction beep(freq, duration, volume = 0.08){
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    osc.frequency.value = 900; // ton du bip
-    gain.gain.value = 0.08;    // volume
+    osc.frequency.value = freq;
+    gain.gain.value = volume;
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
     osc.start();
-    setTimeout(()=>osc.stop(), 60);
+    setTimeout(()=>osc.stop(), duration);
 }
 
 const morseCode = {
@@ -170,26 +263,45 @@ function clickSound(){
 document.querySelectorAll("button").forEach(btn=>{
     btn.addEventListener("click", buttonBeep);
 });
+    function soundDot(){
+    beep(900, 60); // aigu court
+}
+
+function soundDash(){
+    beep(600, 220); // plus grave + long
+}
+
+function soundLetter(){
+    beep(300, 80); // grave court
+}
+
+function soundWord(){
+    beep(200, 180); // grave + plus long
+}
 
 /* BOUTONS MORSE */
 function dot(){
     inputMorse += ".";
     update();
+    soundDot();
 }
 
 function dash(){
     inputMorse += "-";
     update();
+    soundDash();
 }
 
 function spaceLetter(){
     inputMorse += " ";
     update();
+    soundLetter();
 }
 
 function spaceWord(){
     inputMorse += " / ";
     update();
+    soundWord();
 }
 
 /* TEXTE -> MORSE */
