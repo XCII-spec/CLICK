@@ -117,6 +117,20 @@ button:active{
 </div>
 
 <script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function buttonBeep(){
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.frequency.value = 900; // ton du bip
+    gain.gain.value = 0.08;    // volume
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    setTimeout(()=>osc.stop(), 60);
+}
 
 const morseCode = {
 "A":".-","B":"-...","C":"-.-.","D":"-..","E":".",
@@ -153,9 +167,8 @@ function clickSound(){
     setTimeout(()=>osc.stop(), 40);
 }
 
-/* AUTO SON SUR TOUS LES BOUTONS */
 document.querySelectorAll("button").forEach(btn=>{
-    btn.addEventListener("click", clickSound);
+    btn.addEventListener("click", buttonBeep);
 });
 
 /* BOUTONS MORSE */
