@@ -2,86 +2,132 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>RADIO MORSE X-1960</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>📻 RADIO MORSE KZ</title>
 
 <style>
 body{
-    margin:0;
-    background:linear-gradient(#2b2b2b,#111);
-    font-family:monospace;
-    color:#ddd;
-    text-align:center;
+margin:0;
+background:linear-gradient(#2c2c2c,#090909);
+font-family:Consolas,monospace;
+color:white;
+text-align:center;
 }
 
 .radio{
-    width:90%;
-    max-width:900px;
-    margin:40px auto;
-    padding:25px;
-    background:linear-gradient(145deg,#8a8a8a,#5a5a5a);
-    border:10px solid #2b2b2b;
-    border-radius:25px;
-    box-shadow:0 0 40px #000 inset;
+width:95%;
+max-width:1200px;
+margin:20px auto;
+padding:20px;
+border-radius:20px;
+background:linear-gradient(145deg,#8f8f8f,#4d4d4d);
+box-shadow:0 0 30px black;
+}
+
+h1{
+color:#00ff66;
+text-shadow:0 0 10px #00ff66;
 }
 
 .screen{
-    background:#000;
-    border:4px solid #333;
-    padding:20px;
-    min-height:90px;
-    font-size:22px;
-    color:#00ff66;
-    text-shadow:0 0 10px #00ff66;
-    margin-bottom:15px;
+background:black;
+border:3px solid #333;
+border-radius:10px;
+padding:15px;
+margin:10px 0;
+color:#00ff66;
+text-shadow:0 0 8px #00ff66;
+min-height:70px;
 }
 
-.input{
-    font-size:18px;
-    color:#ffcc00;
-    min-height:50px;
-}
-
-.led{
-    width:15px;
-    height:15px;
-    background:#222;
-    border-radius:50%;
-    margin:10px auto;
-    box-shadow:0 0 5px #000;
-}
-.led.on{
-    background:#00ff66;
-    box-shadow:0 0 15px #00ff66;
-}
-
-.buttons{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:10px;
-    margin-top:15px;
+input{
+width:95%;
+padding:10px;
+margin:10px;
+background:#111;
+color:#00ff66;
+border:2px solid #444;
+border-radius:8px;
 }
 
 button{
-    padding:12px 16px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:bold;
-    background:#6e6e6e;
-    color:white;
-    box-shadow:0 3px 0 #222 inset;
+padding:10px 15px;
+margin:5px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
 }
 
-button:active{
-    transform:translateY(2px);
+.blue{background:#2f6dcc;color:white;}
+.green{background:#228b22;color:white;}
+.red{background:#c62828;color:white;}
+.orange{background:#d88b00;color:white;}
+
+#radar{
+width:250px;
+height:250px;
+margin:auto;
+border:3px solid #00ff66;
+border-radius:50%;
+position:relative;
+overflow:hidden;
+background:#001100;
 }
 
-.blue{background:#3a6ea5;}
-.red{background:#a53a3a;}
-.green{background:#2f7a3a;}
-.orange{background:#a57a2f;}
+.sweep{
+position:absolute;
+width:50%;
+height:2px;
+background:#00ff66;
+top:50%;
+left:50%;
+transform-origin:left center;
+animation:spin 3s linear infinite;
+}
 
+@keyframes spin{
+from{transform:rotate(0deg);}
+to{transform:rotate(360deg);}
+}
+
+.signal{
+height:20px;
+background:#111;
+border-radius:10px;
+overflow:hidden;
+margin:10px;
+}
+
+.signalFill{
+height:100%;
+width:10%;
+background:#00ff66;
+transition:.5s;
+}
+
+.log{
+height:150px;
+overflow:auto;
+text-align:left;
+background:#000;
+padding:10px;
+border-radius:10px;
+border:2px solid #333;
+}
+
+.led{
+width:20px;
+height:20px;
+background:#111;
+border-radius:50%;
+margin:auto;
+}
+
+.on{
+background:#00ff66;
+box-shadow:0 0 15px #00ff66;
+}
 </style>
 </head>
 
@@ -89,393 +135,371 @@ button:active{
 
 <div class="radio">
 
-<h2>📻 RADIO MORSE X-1960</h2>
+<h1>📻 RADIO MORSE KZ</h1>
+
+<div class="screen" id="clock"></div>
 
 <div class="led" id="led"></div>
 
 <div class="screen" id="morseScreen">---</div>
 
-<div class="screen input" id="textScreen">Texte : ...</div>
+<div class="screen" id="textScreen">
+Prêt à transmettre...
+</div>
 
-<input id="textInput" placeholder="Tape ton message ici"
-style="width:90%;padding:10px;font-size:16px;margin-bottom:10px;">
+<input id="textInput" placeholder="Message">
 
-<div class="buttons">
+<div>
 
-<button onclick="dot()">● POINT</button>
-<button onclick="dash()">▬ TIRET</button>
+<button onclick="dot()">●</button>
+<button onclick="dash()">▬</button>
 
-<button class="orange" onclick="spaceLetter()">LETTRE</button>
-<button class="orange" onclick="spaceWord()">MOT</button>
-
-<button class="green" onclick="convertText()">📡 TEXTE → MORSE</button>
-<button class="blue" onclick="play()">🔊 LIRE</button>
-<button class="red" onclick="clearAll()">RESET</button>
-
-<button class="blue" onclick="playRadioVoice('Message reçu. Transmission en cours.')">
-📡 VOIX RADIO
+<button class="orange" onclick="letterSpace()">
+LETTRE
 </button>
-<button class="green" onclick="exportMorse()">
-💾 EXPORTER
+
+<button class="orange" onclick="wordSpace()">
+MOT
 </button>
-    <button class="blue" onclick="sendWebhook()">
-📡 CMKZ
+
+</div>
+
+<div>
+
+<button class="green" onclick="textToMorse()">
+Texte → Morse
 </button>
-    <button class="orange" onclick="getSignalPosition()">
-📡 POSITION DU SIGNAL
+
+<button class="blue" onclick="morseToText()">
+Morse → Texte
 </button>
-    <button class="red" onclick="sendSOS()">
+
+<button class="blue" onclick="playMorse()">
+🔊 Lire
+</button>
+
+<button class="red" onclick="clearAll()">
+Reset
+</button>
+
+</div>
+
+<div>
+
+<button class="blue" onclick="radioVoice()">
+🎙️ Voix Radio
+</button>
+
+<button class="green" onclick="exportTxt()">
+💾 Export TXT
+</button>
+
+<button class="orange" onclick="getGPS()">
+📍 GPS
+</button>
+
+<button class="red" onclick="sendSOS()">
 🚨 SOS
 </button>
+
 </div>
-<div class="screen" id="positionScreen">
-Position : inconnue
+
+<h3>📡 Radar</h3>
+
+<div id="radar">
+<div class="sweep"></div>
 </div>
+
+<div class="signal">
+<div class="signalFill" id="signalFill"></div>
+</div>
+
+<div class="screen" id="gps">
+Position inconnue
+</div>
+
+<h3>📜 Journal</h3>
+
+<div class="log" id="log"></div>
+
 </div>
 
 <script>
-    const WEBHOOK_URL = "https://discord.com/api/webhooks/1513616181448413426/klLBJ8thg78YqWs0eVhOKeuq6Mb0_g6Z0Of0cV1NPb61Pfsu6bsAf86yZJiiI_SWVK83"; // KZ
-const morseCode = {
-"A":".-","B":"-...","C":"-.-.","D":"-..","E":".",
-"F":"..-.","G":"--.","H":"....","I":"..","J":".---",
-"K":"-.-","L":".-..","M":"--","N":"-.","O":"---",
-"P":".--.","Q":"--.-","R":".-.","S":"...","T":"-",
-"U":"..-","V":"...-","W":".--","X":"-..-","Y":"-.--","Z":"--..",
-" ":"/"
+
+const morse={
+A:".-",B:"-...",C:"-.-.",D:"-..",
+E:".",F:"..-.",G:"--.",H:"....",
+I:"..",J:".---",K:"-.-",L:".-..",
+M:"--",N:"-.",O:"---",P:".--.",
+Q:"--.-",R:".-.",S:"...",T:"-",
+U:"..-",V:"...-",W:".--",X:"-..-",
+Y:"-.--",Z:"--.."," ":"/"
 };
 
-let inputMorse = "";
-    function exportMorse(){
+let current="";
 
-    const content =
-`RADIO MORSE X-1960
-===================
+const audio=new(
+window.AudioContext||
+window.webkitAudioContext
+)();
 
-MORSE :
-${inputMorse}
-
-TEXTE :
-${document.getElementById("textInput").value}
-
-DATE :
-${new Date().toLocaleString()}
-`;
-
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "radio_morse.txt";
-    a.click();
-
-    URL.revokeObjectURL(url);
-}
-    function getSignalPosition(){
-
-    if(!navigator.geolocation){
-        document.getElementById("positionScreen").innerText =
-        "Géolocalisation non supportée";
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-
-        function(position){
-
-            const lat = position.coords.latitude.toFixed(6);
-            const lon = position.coords.longitude.toFixed(6);
-
-            document.getElementById("positionScreen").innerText =
-            `📡 Signal détecté
-Latitude : ${lat}
-Longitude : ${lon}`;
-
-        },
-
-        function(error){
-
-            document.getElementById("positionScreen").innerText =
-            "❌ Position indisponible";
-
-        }
-
-    );
-
-}
-async function sendWebhook(){
-
-    const text = document.getElementById("textInput").value;
-
-    const payload = {
-        username: "RADIO MORSE X-1960",
-        avatar_url: "https://storage.googleapis.com/proton-profile-images/avatar-red.jpg",
-        content:
-`📡 **Message Radio**
-----------------------
-🔤 Texte : ${text}
-📟 Morse : ${inputMorse}
-🕒 Heure : ${new Date().toLocaleString()}
-`
-    };
-
-    try {
-        await fetch(WEBHOOK_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        textScreen.innerText = "Envoyé sur Discord ✔";
-    }
-    catch(e){
-        textScreen.innerText = "Erreur envoi ❌";
-        console.error(e);
-    }
-}
-    async function sendSOS(){
-
-    inputMorse = "... --- ...";
-    update();
-        for(let i=0;i<3;i++){
-    beep(900,300,0.15);
-    await sleep(350);
-    beep(500,300,0.15);
-    await sleep(350);
+function log(msg){
+document.getElementById("log").innerHTML+=
+"<div>"+new Date().toLocaleTimeString()+" - "+msg+"</div>";
 }
 
-    playRadioVoice("Alerte SOS. Transmission d'urgence.");
+function beep(freq,time){
+const osc=audio.createOscillator();
+const gain=audio.createGain();
 
-    let latitude = "Inconnue";
-    let longitude = "Inconnue";
+osc.frequency.value=freq;
+gain.gain.value=.05;
 
-    try{
-        const pos = await new Promise((resolve,reject)=>{
-            navigator.geolocation.getCurrentPosition(resolve,reject);
-        });
+osc.connect(gain);
+gain.connect(audio.destination);
 
-        latitude = pos.coords.latitude.toFixed(6);
-        longitude = pos.coords.longitude.toFixed(6);
-    }
-    catch(e){}
+osc.start();
 
-    const pseudo =
-        document.getElementById("textInput").value ||
-        "Utilisateur inconnu";
-
-    const payload = {
-        username: "RADIO MORSE X-1960",
-        content:
-`🚨 ALERTE SOS 🚨
-
-${pseudo} est en danger !
-
-📡 Morse :
-... --- ...
-
-📍 Latitude : ${latitude}
-📍 Longitude : ${longitude}
-
-🌍 Carte :
-https://maps.google.com/?q=${latitude},${longitude}
-
-🕒 Heure :
-${new Date().toLocaleString()}
-`
-    };
-
-    try{
-
-        await fetch(WEBHOOK_URL,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify(payload)
-        });
-
-        textScreen.innerText =
-        "🚨 SOS envoyé avec succès";
-
-    }catch(err){
-
-        textScreen.innerText =
-        "❌ Erreur envoi SOS";
-    }
-}
-/* AUDIO */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-/* 🔊 GRÉSILLEMENT RADIO */
-let noiseNode, gainNode;
-
-function startRadioNoise(){
-    const bufferSize = 2 * audioCtx.sampleRate;
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.25;
-    }
-
-    noiseNode = audioCtx.createBufferSource();
-    noiseNode.buffer = buffer;
-    noiseNode.loop = true;
-
-    gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0.03;
-
-    noiseNode.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    noiseNode.start();
+setTimeout(()=>{
+osc.stop();
+},time);
 }
 
-/* 🔘 CLIC BOUTON */
-function buttonBeep(){
-    beep(1200, 40, 0.05);
-}
-
-/* 🔊 BEEP GÉNÉRAL */
-function beep(freq, duration, volume = 0.08){
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.frequency.value = freq;
-    gain.gain.value = volume;
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start();
-    setTimeout(()=>osc.stop(), duration);
-}
-
-/* 🎛 SONS MORSE */
-function soundDot(){ beep(900, 60); }
-function soundDash(){ beep(600, 220); }
-function soundLetter(){ beep(300, 80); }
-function soundWord(){ beep(200, 180); }
-
-/* 📡 VOIX RADIO */
-function playRadioVoice(text){
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "fr-FR";
-    utterance.rate = 0.85;
-    utterance.pitch = 0.3;
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-
-    // petit effet radio
-    beep(120, 200, 0.02);
-}
-
-/* INIT NOISE */
-window.addEventListener("click", () => {
-    if (audioCtx.state === "suspended") audioCtx.resume();
-    if (!noiseNode) startRadioNoise();
-}, { once:true });
-
-    
-
-/* UI */
-const morseScreen = document.getElementById("morseScreen");
-const textScreen = document.getElementById("textScreen");
-const led = document.getElementById("led");
-
-function update(){
-    morseScreen.innerText = inputMorse;
-}
-
-/* BOUTONS */
 function dot(){
-    inputMorse += ".";
-    update();
-    soundDot();
+current+=".";
+update();
+beep(900,100);
 }
 
 function dash(){
-    inputMorse += "-";
-    update();
-    soundDash();
+current+="-";
+update();
+beep(500,300);
 }
 
-function spaceLetter(){
-    inputMorse += " ";
-    update();
-    soundLetter();
+function letterSpace(){
+current+=" ";
+update();
 }
 
-function spaceWord(){
-    inputMorse += " / ";
-    update();
-    soundWord();
+function wordSpace(){
+current+=" / ";
+update();
 }
 
-/* TEXTE → MORSE */
-function convertText(){
-
-    let text = document.getElementById("textInput").value.toUpperCase();
-    let result = "";
-
-    for(let c of text){
-        if(morseCode[c]){
-            result += morseCode[c] + " ";
-        }
-    }
-
-    inputMorse = result;
-    update();
-    textScreen.innerText = "Converti ✔";
+function update(){
+document.getElementById("morseScreen").innerText=current;
 }
 
-/* LECTURE MORSE */
-async function play(){
+function textToMorse(){
 
-    for(let s of inputMorse){
+let txt=
+document.getElementById("textInput")
+.value.toUpperCase();
 
-        led.classList.add("on");
+let out="";
 
-        if(s === "."){
-            soundDot();
-            await sleep(150);
-        }
-        else if(s === "-"){
-            soundDash();
-            await sleep(350);
-        }
-        else if(s === " "){
-            await sleep(150);
-        }
-        else if(s === "/"){
-            await sleep(600);
-        }
-
-        led.classList.remove("on");
-    }
+for(let c of txt){
+if(morse[c]){
+out+=morse[c]+" ";
+}
 }
 
-/* RESET */
-function clearAll(){
-    inputMorse = "";
-    update();
-    textScreen.innerText = "Texte : ...";
-    document.getElementById("textInput").value = "";
+current=out;
+update();
+
+log("Texte converti");
 }
 
-/* UTIL */
-function sleep(ms){
-    return new Promise(r=>setTimeout(r,ms));
+function morseToText(){
+
+let reverse={};
+
+for(let k in morse){
+reverse[morse[k]]=k;
 }
 
-/* AUTO CLICK SOUND */
-document.querySelectorAll("button").forEach(btn=>{
-    btn.addEventListener("click", buttonBeep);
+let txt="";
+
+current.split(" ").forEach(code=>{
+
+if(reverse[code]){
+txt+=reverse[code];
+}
+
 });
+
+document.getElementById("textScreen")
+.innerText=txt;
+
+log("Morse traduit");
+}
+
+async function playMorse(){
+
+const led=
+document.getElementById("led");
+
+for(let c of current){
+
+led.classList.add("on");
+
+if(c==="."){
+beep(900,100);
+await sleep(150);
+}
+
+else if(c==="-"){
+beep(500,300);
+await sleep(350);
+}
+
+else if(c==="/"){
+await sleep(500);
+}
+
+else{
+await sleep(150);
+}
+
+led.classList.remove("on");
+}
+
+}
+
+function sleep(ms){
+return new Promise(
+r=>setTimeout(r,ms)
+);
+}
+
+function clearAll(){
+
+current="";
+
+update();
+
+document.getElementById("textInput")
+.value="";
+
+document.getElementById("textScreen")
+.innerText="Prêt à transmettre...";
+
+}
+
+function radioVoice(){
+
+const msg=
+document.getElementById("textInput").value
+||"Transmission radio";
+
+const s=
+new SpeechSynthesisUtterance(msg);
+
+s.lang="fr-FR";
+s.pitch=.3;
+s.rate=.85;
+
+speechSynthesis.speak(s);
+
+log("Voix radio");
+}
+
+function exportTxt(){
+
+const content=
+`RADIO KZ
+
+Texte:
+${document.getElementById("textInput").value}
+
+Morse:
+${current}
+
+Date:
+${new Date()}
+`;
+
+const blob=
+new Blob([content],
+{type:"text/plain"});
+
+const url=
+URL.createObjectURL(blob);
+
+const a=
+document.createElement("a");
+
+a.href=url;
+a.download="radio_kz.txt";
+a.click();
+
+}
+
+function getGPS(){
+
+if(!navigator.geolocation){
+return;
+}
+
+navigator.geolocation.getCurrentPosition(
+
+p=>{
+
+document.getElementById("gps")
+.innerText=
+"Latitude : "+
+p.coords.latitude+
+"\nLongitude : "+
+p.coords.longitude;
+
+log("GPS obtenu");
+
+}
+
+);
+
+}
+
+async function sendSOS(){
+
+current="... --- ...";
+
+update();
+
+playMorse();
+
+alert("SOS déclenché");
+
+log("SOS envoyé");
+
+}
+
+function updateSignal(){
+
+const value=
+Math.floor(Math.random()*100);
+
+document.getElementById("signalFill")
+.style.width=
+value+"%";
+
+}
+
+setInterval(updateSignal,1000);
+
+function updateClock(){
+
+document.getElementById("clock")
+.innerText=
+"🕒 "+
+new Date().toUTCString();
+
+}
+
+setInterval(updateClock,1000);
+
+updateClock();
 
 </script>
 
